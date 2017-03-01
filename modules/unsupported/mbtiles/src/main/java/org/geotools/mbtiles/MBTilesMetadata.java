@@ -138,7 +138,7 @@ public class MBTilesMetadata {
         if (type == null) {
             return null;
         } else {
-            return type.toString().toLowerCase();
+            return type.identifier;
         }
     }
    
@@ -162,12 +162,7 @@ public class MBTilesMetadata {
         if (typeStr == null) {
             setType(null);
         } else {
-            if(typeStr.equalsIgnoreCase("BASE_LAYER")) {
-                LOGGER.log(Level.WARNING, ()->String.format("MBTiles file has invalid type '%s', using '%s' instead", typeStr, t_type.BASE_LAYER));
-                setType(t_type.BASE_LAYER);
-            } else {
-                setType(t_type.lookUp(typeStr));
-            }
+        	setType(t_type.lookUp(typeStr));       	
         }
     }
 
