@@ -445,6 +445,24 @@ public class GridCoverageReaderHelper {
         }
     }
 
+    boolean isAccurateResolutionComputationSafe(ReferencedEnvelope readEnvelope) throws MismatchedDimensionException, FactoryException, TransformException {
+        // accurate resolution computation depends on reprojection working, we need
+        // to make sure the read envelope is sane for the source data at hand
+        CoordinateReferenceSystem readCRS = readEnvelope.getCoordinateReferenceSystem();
+        ProjectionHandler handler = ProjectionHandlerFinder.getHandler(new ReferencedEnvelope(readCRS), DefaultGeographicCRS.WGS84, true);
+        if(handler != null) {
+            // if there are no limits or the projection is periodic, assume it's fine to read whatever 
+            if(handler.getValidAreaBounds() == null || handler instanceof WrappingProjectionHandler) {
+                return true;
+            }
+            // in this case we need to make sure the area is actually safe to perform reprojections on
+            ReferencedEnvelope validBounds = handler.getValidAreaBounds().transform(readCRS, true);
+            return validBounds.contains((Envelope) readEnvelope);
+        } else {
+            return false;
+        }
+    }
+
     private ReferencedEnvelope reduceEnvelope(ReferencedEnvelope envelope, ProjectionHandler handler)
             throws TransformException, FactoryException {
         Polygon polygon = JTS.toGeometry(envelope);
