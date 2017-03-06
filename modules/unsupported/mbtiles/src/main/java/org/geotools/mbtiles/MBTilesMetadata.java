@@ -44,6 +44,14 @@ public class MBTilesMetadata {
         PBF
     } ;
     
+    /** Not part of the spec but used by some implementations of MBTiles for vector tiles */
+    public enum t_scheme {
+    	XYZ,
+    	TMS
+    }
+    
+    protected String id;
+    
     protected String name;
     
     protected String version;
@@ -54,6 +62,8 @@ public class MBTilesMetadata {
     
     protected t_format format;
     
+    protected t_scheme scheme;
+    
     protected Envelope bounds;
     
     protected String attribution;
@@ -61,6 +71,14 @@ public class MBTilesMetadata {
     protected int minZoom;
 
     protected int maxZoom;
+    
+    public String getId() {
+    	return id;
+    }
+    
+    public void setId(String id) {
+    	this.id = id;
+    }
 
     public String getName() {
         return name;
@@ -100,6 +118,14 @@ public class MBTilesMetadata {
 
     public void setFormat(t_format format) {
         this.format = format;
+    }
+    
+    public t_scheme getScheme() {
+        return scheme;
+    }
+
+    public void setScheme(t_scheme scheme) {
+        this.scheme = scheme;
     }
 
     public Envelope getBounds() {
@@ -150,6 +176,14 @@ public class MBTilesMetadata {
         }
     }
     
+    public String getSchemeStr() {
+        if (scheme == null) {
+            return null;
+        } else {
+            return scheme.toString().toLowerCase();
+        }
+    }
+    
     public String getBoundsStr() {
         if (bounds == null) {
             return null;
@@ -171,6 +205,14 @@ public class MBTilesMetadata {
             setFormat(null);
         } else {
             setFormat(t_format.valueOf(formatStr.toUpperCase()));
+        }
+    }
+    
+    public void setSchemeStr(String schemeStr) {
+        if (schemeStr == null) {
+            setScheme(null);
+        } else {
+            setScheme(t_scheme.valueOf(schemeStr.toUpperCase()));
         }
     }
 

@@ -27,22 +27,26 @@ public class MBTilesFileTest {
         file.init();
                 
         MBTilesMetadata metadata = new MBTilesMetadata();
+        metadata.setId("dummy id");
         metadata.setName("dummy name");
         metadata.setDescription("dummy description");
         metadata.setVersion("dummy version");
         metadata.setBoundsStr("0,0,100,100");
-        metadata.setFormatStr("png");
-        metadata.setTypeStr("overlay");
+        metadata.setFormatStr("pbf");
+        metadata.setSchemeStr("xyz");
+        metadata.setTypeStr("baselayer");
         metadata.setMinZoomStr("0");
         metadata.setMaxZoomStr("5");
         file.saveMetaData(metadata);   
         
         MBTilesMetadata metadata2 = file.loadMetaData();
+        assertEquals(metadata.getId(), metadata2.getId());
         assertEquals(metadata.getName(), metadata2.getName());
         assertEquals(metadata.getDescription(), metadata2.getDescription());
         assertEquals(metadata.getVersion(), metadata2.getVersion());
         assertEquals(metadata.getBounds(), metadata2.getBounds());
         assertEquals(metadata.getFormat(), metadata2.getFormat());
+        assertEquals(metadata.getScheme(), metadata2.getScheme());
         assertEquals(metadata.getType(), metadata2.getType());
         assertEquals(metadata.getMinZoom(), metadata2.getMinZoom());
         assertEquals(metadata.getMaxZoom(), metadata2.getMaxZoom());
