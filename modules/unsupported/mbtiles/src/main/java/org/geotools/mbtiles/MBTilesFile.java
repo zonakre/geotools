@@ -93,6 +93,8 @@ public class MBTilesFile implements AutoCloseable {
     protected final String TABLE_GRIDS = "grids";
 
     protected final String TABLE_GRID_DATA = "grid_data";
+    
+    protected final String MD_ID = "id";
 
     protected final String MD_NAME = "name";
 
@@ -103,6 +105,8 @@ public class MBTilesFile implements AutoCloseable {
     protected final String MD_DESCRIPTION = "description";
 
     protected final String MD_FORMAT = "format";
+    
+    protected final String MD_SCHEME = "scheme";
 
     protected final String MD_BOUNDS = "bounds";
 
@@ -213,12 +217,14 @@ public class MBTilesFile implements AutoCloseable {
         try {
             Connection cx = connPool.getConnection();
             try {
-                saveMetaDataEntry(MD_NAME, metaData.getName(), cx);
+            	saveMetaDataEntry(MD_ID, metaData.getId(), cx);
+            	saveMetaDataEntry(MD_NAME, metaData.getName(), cx);
                 saveMetaDataEntry(MD_VERSION, metaData.getVersion(), cx);
                 saveMetaDataEntry(MD_DESCRIPTION, metaData.getDescription(), cx);
                 saveMetaDataEntry(MD_ATTRIBUTION, metaData.getAttribution(), cx);
                 saveMetaDataEntry(MD_TYPE, metaData.getTypeStr(), cx);
                 saveMetaDataEntry(MD_FORMAT, metaData.getFormatStr(), cx);
+                saveMetaDataEntry(MD_SCHEME, metaData.getSchemeStr(), cx);
                 saveMetaDataEntry(MD_BOUNDS, metaData.getBoundsStr(), cx);
                 saveMetaDataEntry(MD_MINZOOM, String.valueOf(metaData.getMinZoom()), cx);
                 saveMetaDataEntry(MD_MAXZOOM, String.valueOf(metaData.getMaxZoom()), cx);
@@ -357,12 +363,14 @@ public class MBTilesFile implements AutoCloseable {
         try {
             Connection cx = connPool.getConnection();
             try {
+            	metaData.setId(loadMetaDataEntry(MD_ID, cx));
                 metaData.setName(loadMetaDataEntry(MD_NAME, cx));
                 metaData.setVersion(loadMetaDataEntry(MD_VERSION, cx));
                 metaData.setDescription(loadMetaDataEntry(MD_DESCRIPTION, cx));
                 metaData.setAttribution(loadMetaDataEntry(MD_ATTRIBUTION, cx));
                 metaData.setTypeStr(loadMetaDataEntry(MD_TYPE, cx));
                 metaData.setFormatStr(loadMetaDataEntry(MD_FORMAT, cx));
+                metaData.setSchemeStr(loadMetaDataEntry(MD_SCHEME, cx));
                 metaData.setBoundsStr(loadMetaDataEntry(MD_BOUNDS, cx));
                 metaData.setMinZoomStr(loadMetaDataEntry(MD_MINZOOM, cx));
                 metaData.setMaxZoomStr(loadMetaDataEntry(MD_MAXZOOM, cx));
