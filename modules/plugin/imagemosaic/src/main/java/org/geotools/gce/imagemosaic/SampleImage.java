@@ -36,10 +36,15 @@ import javax.media.jai.remote.SerializerFactory;
  */
 public class SampleImage implements Serializable {
 <<<<<<< Upstream, based on upstream/17.x
+<<<<<<< Upstream, based on upstream/17.x
     
     private static final long serialVersionUID = 6324143924454724262l;
 =======
 >>>>>>> 8cfaccb [GEOT-5668] Tomcat classloader does not allow de-serialization of ImageMosaic SampleImage
+=======
+    
+    private static final long serialVersionUID = 6324143924454724262l;
+>>>>>>> 6c5a6b8 Make SampleImage serial version UID stable and backwards compatible
 
     transient SampleModel sampleModel;
 
