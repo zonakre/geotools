@@ -24,7 +24,11 @@ import org.junit.Test;
 public class SymbolMBLayerTest {
 
     @Test
+<<<<<<< Upstream, based on upstream/17.x
     public void testTextAnchorEnum(){
+=======
+    public void testAnchorPoint(){
+>>>>>>> ba56923 Test to verify TextAnchor Enum functionality
         // cannot use valueOf directly
         assertEquals( TextAnchor.CENTER, TextAnchor.parse("center"));
         assertEquals( TextAnchor.BOTTOM_LEFT, TextAnchor.parse("bottom-left"));
