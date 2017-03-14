@@ -59,6 +59,7 @@ public class TransparencyFillProcess implements RasterProcess {
     @DescribeResult(name = "result", description = "The processed coverage")
     public GridCoverage2D execute(
             @DescribeParameter(name = "data", description = "Input coverage") GridCoverage2D coverage,
+<<<<<<< Upstream, based on upstream/17.x
 //            @DescribeParameter(name = "type", description = "Type of filling algorithm", min = 0) FillType type,
             ProgressListener listener) throws ProcessException {
 
@@ -98,6 +99,47 @@ public class TransparencyFillProcess implements RasterProcess {
 //        if (type != null && type instanceof FillType) { 
 //            param.parameter("type").setValue(type);
 //        }
+=======
+            @DescribeParameter(name = "type", description = "Type of filling algorithm", min = 0) FillType type,
+            ProgressListener listener) throws ProcessException {
+
+        if (coverage == null) {
+            throw new ProcessException(Errors.format(ErrorKeys.NULL_ARGUMENT_$1, "coverage"));
+        }
+
+        RenderedImage ri = coverage.getRenderedImage();
+
+        // If no transparency is involved, no need to do the checks
+        boolean hasTransparency = ri != null ? ri.getColorModel().hasAlpha() : false;
+        if (!hasTransparency) {
+            return coverage;
+        }
+        int numBands = ri.getSampleModel().getNumBands();
+        RenderingHints renderingHints = null;
+
+        if (numBands == 4 || numBands == 2) {
+            // Looking for statistics on alpha channel
+            renderingHints = ImageUtilities.getRenderingHints(ri);
+            RenderedOp extremaOp = ExtremaDescriptor.create(ri, null, 1, 1, false, 1,
+                    renderingHints);
+            double[][] extrema = (double[][]) extremaOp.getProperty("Extrema");
+            double[] mins = extrema[0];
+            // check if alpha is 255 on every pixel (fully opaque)
+            hasTransparency = !(mins[mins.length - 1] == 255); // fully opaque
+        }
+
+        if (!hasTransparency) {
+            return coverage;
+        }
+
+        // Do the transparency fill operation
+        final ParameterValueGroup param = PROCESSOR.getOperation("TransparencyFill")
+                .getParameters();
+        param.parameter("source").setValue(coverage);
+        if (type != null && type instanceof FillType) { 
+            param.parameter("type").setValue(type);
+        }
+>>>>>>> e78de82 GEOT-5674: TransparencyFill process-raster
         return (GridCoverage2D) PROCESSOR.doOperation(param);
     }
 
