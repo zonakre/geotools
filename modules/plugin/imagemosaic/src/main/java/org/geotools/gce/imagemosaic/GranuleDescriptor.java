@@ -947,7 +947,11 @@ public class GranuleDescriptor {
             // image mosaic is responsible for do it
             if(request.getBands() != null && !reader.getFormatName().equalsIgnoreCase("netcdf")) {
                 // if we are expanding the color model, do so before selecting the bands
+<<<<<<< Upstream, based on upstream/17.x
                 if(raster.getColorModel() instanceof IndexColorModel && expandToRGB) {
+=======
+                if(raster.getColorModel() instanceof IndexColorModel && request.getRasterManager().isExpandMe()) {
+>>>>>>> 1938c52 [GEOT-5677] Band selection via request param and RBG expansion are incompatible
                     raster = new ImageWorker(raster).forceComponentColorModel().getRenderedImage();                    
                 }
                 
