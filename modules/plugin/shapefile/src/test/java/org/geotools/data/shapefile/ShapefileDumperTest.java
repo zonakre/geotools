@@ -130,6 +130,14 @@ public class ShapefileDumperTest {
         assertThat(features.get(0).getAttribute("FID"), is("117"));
         assertThat(features.get(0).getAttribute("NAME"), is("Ashton"));
         assertThat(features.get(0).getAttribute("the_geom"), notNullValue());
+<<<<<<< Upstream, based on upstream/17.x
+=======
+        // check the second feature with no geometry
+        assertThat(features.get(1).getAttribute("FID"), notNullValue());
+        assertThat(features.get(1).getAttribute("FID"), is("118"));
+        assertThat(features.get(1).getAttribute("NAME"), is("Goose Island"));
+        assertThat(features.get(1).getAttribute("the_geom"), nullValue());
+>>>>>>> 7b7075c [GEOT-5686] Shapefile dumper throws a NPE on NULL geometry values
     }
 
     @Test
@@ -203,6 +211,23 @@ public class ShapefileDumperTest {
         assertFieldsNotEmpty(line);
         checkTypeStructure(line.getSchema(), MultiLineString.class, "name");
         assertCst(baseTypeName + "Line", "ISO-8859-1");
+    }
+
+    @Test
+    public void testMultipleTypesWithNullGeometries() throws Exception {
+        // features with null geometries  will be wrote to AllTypesWithNull_NULL file
+        testMultipleTypes(ALL_TYPES_WITH_NULL, ALL_TYPES_WITH_NULL);
+        // check that NULL geometries where wrote to the correct file
+        SimpleFeatureCollection nullGeometries = getFeaturesFromShapefile(ALL_TYPES_WITH_NULL + "_NULL");
+        assertEquals(2, nullGeometries.size());
+        checkTypeStructure(nullGeometries.getSchema(), Point.class, "name");
+        assertCst(ALL_TYPES_WITH_NULL + "_NULL", "ISO-8859-1");
+        // check that name attribute was correctly handled
+        getFeaturesSortedById(nullGeometries).forEach(feature -> {
+            assertThat(feature.getAttribute("name"), notNullValue());
+            assertThat(feature.getAttribute("name"), CoreMatchers.anyOf(is("f007"), is("f008")));
+            assertThat(feature.getAttribute("geom"), nullValue());
+        });
     }
 
     @Test
