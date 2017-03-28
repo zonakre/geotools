@@ -71,10 +71,14 @@ public class TransparencyTest {
 
             TransparencyFillProcess process = new TransparencyFillProcess();
 <<<<<<< Upstream, based on upstream/17.x
+<<<<<<< Upstream, based on upstream/17.x
             coverage = process.execute(coverage, null);
 =======
             coverage = process.execute(coverage, null, null);
 >>>>>>> e78de82 GEOT-5674: TransparencyFill process-raster
+=======
+            coverage = process.execute(coverage, null);
+>>>>>>> d76befc Removing filltype usage
 
             worker = new ImageWorker(coverage.getRenderedImage()).crop(0, 0, 39, 19)
                     .retainLastBand();

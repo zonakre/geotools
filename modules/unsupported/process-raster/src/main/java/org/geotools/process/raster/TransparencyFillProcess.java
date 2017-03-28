@@ -60,6 +60,7 @@ public class TransparencyFillProcess implements RasterProcess {
     public GridCoverage2D execute(
             @DescribeParameter(name = "data", description = "Input coverage") GridCoverage2D coverage,
 <<<<<<< Upstream, based on upstream/17.x
+<<<<<<< Upstream, based on upstream/17.x
 //            @DescribeParameter(name = "type", description = "Type of filling algorithm", min = 0) FillType type,
             ProgressListener listener) throws ProcessException {
 
@@ -101,6 +102,9 @@ public class TransparencyFillProcess implements RasterProcess {
 //        }
 =======
             @DescribeParameter(name = "type", description = "Type of filling algorithm", min = 0) FillType type,
+=======
+//            @DescribeParameter(name = "type", description = "Type of filling algorithm", min = 0) FillType type,
+>>>>>>> d76befc Removing filltype usage
             ProgressListener listener) throws ProcessException {
 
         if (coverage == null) {
@@ -136,10 +140,16 @@ public class TransparencyFillProcess implements RasterProcess {
         final ParameterValueGroup param = PROCESSOR.getOperation("TransparencyFill")
                 .getParameters();
         param.parameter("source").setValue(coverage);
+<<<<<<< Upstream, based on upstream/17.x
         if (type != null && type instanceof FillType) { 
             param.parameter("type").setValue(type);
         }
 >>>>>>> e78de82 GEOT-5674: TransparencyFill process-raster
+=======
+//        if (type != null && type instanceof FillType) { 
+//            param.parameter("type").setValue(type);
+//        }
+>>>>>>> d76befc Removing filltype usage
         return (GridCoverage2D) PROCESSOR.doOperation(param);
     }
 
