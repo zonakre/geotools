@@ -17,7 +17,6 @@
  */
 package org.geotools.mbstyle;
 
-import org.geotools.mbstyle.parse.MBFilter;
 import org.geotools.mbstyle.parse.MBFormatException;
 import org.geotools.mbstyle.parse.MBObjectParser;
 import org.geotools.styling.StyleFactory2;
@@ -25,7 +24,6 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory2;
-import org.opengis.style.SemanticType;
 
 /**
  * MBLayer wrapper (around one of the MBStyle layers).
@@ -57,6 +55,9 @@ public abstract class MBLayer {
 
     /** JSON layer being wrapped. */
     final protected JSONObject json;
+    
+    /** Ref layer being wrapped. */
+    final protected MBLayer refLayer;
 
     /** field access for "id" key (due to its use in error messages) */
     final protected String id;
@@ -75,6 +76,17 @@ public abstract class MBLayer {
 
     public MBLayer(JSONObject json, MBObjectParser parse) {
         this.json = json;
+        this.refLayer = null;
+        this.parse = parse;
+        this.ff = parse.getFilterFactory();
+        this.sf = parse.getStyleFactory();
+        
+        this.id = (String) json.get("id");
+    }
+    
+    public MBLayer(JSONObject json, MBLayer refLayer, MBObjectParser parse) {
+        this.json = json;
+        this.refLayer = refLayer;
         this.parse = parse;
         this.ff = parse.getFilterFactory();
         this.sf = parse.getStyleFactory();
@@ -88,8 +100,8 @@ public abstract class MBLayer {
     /**
      * Factory method creating the appropriate MBStyle based on the "type" indicated in the layer JSON.
      */
-    public static MBLayer create(JSONObject layer ){
-        if( layer.containsKey("type") && layer.get("type") instanceof String){
+    public static MBLayer create(JSONObject layer){
+        if(layer.containsKey("type") && layer.get("type") instanceof String) {
             String type = (String) layer.get("type");
             switch( type ){
             case "line": return new LineMBLayer(layer);
@@ -108,6 +120,40 @@ public abstract class MBLayer {
         }
         // technically we may be able to do this via a ref
         throw new MBFormatException("\"type\" required to create layer.");
+    }
+    
+    /**
+     * Factory method creating the appropriate MBStyle based on the "type" indicated in the layer JSON.
+     */
+    @SuppressWarnings("unchecked")
+	public static MBLayer create(JSONObject json, MBLayer refLayer){
+    	if (refLayer == null) {
+    		return create(json);
+    	}
+    	
+    	String type = null;
+        if(json.containsKey("type") && json.get("type") instanceof String) {
+            type = (String) json.get("type");
+        } else {
+        	type = refLayer.getType();
+        }
+        
+        switch( type ){
+        case "line": return new LineMBLayer(json, refLayer);
+        case "fill": return new FillMBLayer(json, refLayer);
+        case "raster": return new RasterMBLayer(json, refLayer);
+        case "circle": return new CircleMBLayer(json, refLayer);
+        case "background": return new BackgroundMBLayer(json, refLayer);
+        case "symbol": return new SymbolMBLayer(json, refLayer);
+        case "fill-extrusion": return new FillExtrusionMBLayer(json, refLayer);
+        default:
+            throw new MBFormatException(("\"type\" " + type
+                    + " is not a valid layer type. Must be one of: "
+                    + "background, fill, line, symbol, raster, circle, fill-extrusion"));
+
+        }
+        
+        // throw new MBFormatException("\"type\" required to create layer.");
     }
     
     /**
@@ -174,7 +220,7 @@ public abstract class MBLayer {
      * @return name of source description to be used for this layer
      */
     public String getSource() {
-        return parse.optional(String.class, json, "source", null);
+        return parse.optional(String.class, json, "source", (refLayer != null) ? refLayer.getSource() : null);
     }
 
     /**
@@ -186,7 +232,7 @@ public abstract class MBLayer {
      * @return layer to use from a vector tile source
      */
     public String getSourceLayer() {
-        return parse.optional(String.class, json, "source-layer", null);
+        return parse.optional(String.class, json, "source-layer", (refLayer != null) ? refLayer.getSourceLayer() : null);
     }
 
     /**
@@ -195,7 +241,7 @@ public abstract class MBLayer {
      * @return minimum zoom level, optional number may return null.
      */
     public Integer getMinZoom(){
-        return parse.optional(Integer.class, json, "minzoom", null);
+        return parse.optional(Integer.class, json, "minzoom", (refLayer != null) ? refLayer.getMinZoom() : null);
     }
     
     /**
@@ -204,34 +250,18 @@ public abstract class MBLayer {
      * @return maximum zoom level, optional number may return null.
      */
     public Integer getMaxZoom(){
-        return parse.optional(Integer.class, json, "maxzoom", null);
+        return parse.optional(Integer.class, json, "maxzoom", (refLayer != null) ? refLayer.getMaxZoom() : null);
     }
     
     /**
-     * A MBFilter wrapping optional json specifying conditions on source features. Only features
-     * that match the filter are displayed. This is available as a GeoTools {@link Filter} via
-     * {@link #filter()}.
+     * A JSONArray expression specifying conditions on source features. Only features that match the filter
+     * are displayed. This is available as a GeoTools {@link Filter} via {@link #filter()}.
      * 
-     * @return MBFilter expression specifying conditions on source features, optional may return
-     *         null.
+     * @return JSONArray expression specifying conditions on source features, optional may return null.
      */
-    public MBFilter getFilter(){
-        JSONArray array = parse.getJSONArray(json,"filter", null );
-        if( array != null ){
-            MBFilter filter = new MBFilter(array, parse, defaultSemanticType());
-            return filter;
-        }
-        return null;
+    public JSONArray getFilter(){
+        return parse.getJSONArray(json, "filter", (refLayer != null) ? refLayer.getFilter() : null);
     }
-    
-    /**
-     * Default {@link SemanticType} to use when generating {@link #getFilter()}.
-     * <p>
-     * Use ANY to match all geometry, or fill in LINE, POINT, POLYGON if needed.</p>
-     * 
-     * @return Appropriate LINE, POINT, POLYGON value, or ANY to match any geometry.
-     */
-    abstract SemanticType defaultSemanticType();
     
     /**
      * The "filter" as a GeoTools {@link Filter} suitable for feature selection, as defined by
@@ -240,11 +270,7 @@ public abstract class MBLayer {
      * @return Filter
      */
     public Filter filter(){
-        MBFilter mbFilter = getFilter();
-        if (mbFilter == null) {
-            return Filter.INCLUDE;
-        }
-        return mbFilter.filter();
+        return Filter.INCLUDE; // TODO: Implemented based on getFilter, for now select everything
     }
     
     /**
@@ -260,7 +286,7 @@ public abstract class MBLayer {
      * @return Layout properties defined for layer, optional value may be empty.
      */
     public JSONObject getLayout(){
-        return parse.layout(json);
+        return parse.layout(json, null);
     }
     
     /**

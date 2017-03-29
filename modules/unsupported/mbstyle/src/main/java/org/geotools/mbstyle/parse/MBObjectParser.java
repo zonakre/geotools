@@ -21,6 +21,7 @@ import java.lang.reflect.Array;
 
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.Hints;
+import org.geotools.mbstyle.MBLayer;
 import org.geotools.styling.StyleFactory2;
 import org.geotools.util.ColorConverterFactory;
 import org.geotools.util.Converters;
@@ -136,10 +137,11 @@ public class MBObjectParser {
      * <p>
      * Layout is optional, returning an empty JSONObject (to prevent the need for null checks).</p>
      * @param layer
+     * @param refLayer TODO
      * @return layout definition, optional so may be an empty JSONObject
      * @throws MBFormatException If layout is provided as an invalid type (such as boolean).
      */
-    public JSONObject layout(JSONObject layer) {
+    public JSONObject layout(JSONObject layer, MBLayer refLayer) {
         if(layer.containsKey("layout")){
             Object layout = layer.get("layout");
             if( layout == null ){
@@ -153,6 +155,9 @@ public class MBObjectParser {
                 String type = get( layer, "type", "layer");
                 throw new MBFormatException( type + " paint rquires JSONOBject");
             }
+        }
+        else if (refLayer != null && refLayer.getLayout() != null) {
+        	return refLayer.getLayout();
         }
         else {
             // paint is optional, having a value here prevents need for null checks

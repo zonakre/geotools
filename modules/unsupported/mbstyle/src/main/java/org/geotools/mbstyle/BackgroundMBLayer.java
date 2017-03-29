@@ -22,14 +22,12 @@ import java.awt.Color;
 import org.geotools.mbstyle.parse.MBObjectParser;
 import org.json.simple.JSONObject;
 import org.opengis.filter.expression.Expression;
-import org.opengis.style.SemanticType;
 
 /**
- * The background color or pattern of the map.
+ * MBLayer wrapper around a {@link JSONObject} representation of a MapBox Background Layer.
  * <p>
- * MBLayer wrapper around a {@link JSONObject} representation of a "background" type latyer. All
- * methods act as accessors on provided JSON layer, no other state is maintained. This allows
- * modifications to be made cleanly with out chance of side-effect.
+ * All methods act as accessors on provided JSON layer, no other state is maintained. This allows modifications to be made cleanly with out chance of
+ * side-effect.
  * 
  * <ul>
  * <li>get methods: access the json directly</li>
@@ -49,11 +47,13 @@ public class BackgroundMBLayer extends MBLayer {
         paint = paint();
         layout = layout();
     }
-    @Override
-    protected SemanticType defaultSemanticType() {
-        return SemanticType.POLYGON;
-    }
     
+    public BackgroundMBLayer(JSONObject json, MBLayer refLayer) {
+        super(json, refLayer, new MBObjectParser(BackgroundMBLayer.class));
+        paint = paint();
+        layout = layout();
+    }
+
     /**
      * Optional color. Defaults to #000000. Disabled by background-pattern.
      * 

@@ -70,6 +70,12 @@ public class LineMBLayer extends MBLayer {
         paint = super.getPaint();
         layout = super.getLayout();
     }
+    
+    public LineMBLayer(JSONObject json, MBLayer refLayer) {
+        super(json, refLayer, new MBObjectParser(LineMBLayer.class));
+        paint = super.getPaint();
+        layout = super.getLayout();
+    }
 
     @Override
     protected SemanticType defaultSemanticType() {
